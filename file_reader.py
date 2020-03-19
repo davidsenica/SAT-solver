@@ -1,5 +1,5 @@
-from classes import Literal
+from classes import Clause
 
 
 def read(filepath):
-    return [Literal([("p", True), ("q", True)]), Literal([("p", False), ("q", False)])]
+    return [Clause([("p", True), ("q", True)]), Clause([("p", False), ("q", True)])]
