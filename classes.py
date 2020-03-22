@@ -12,10 +12,25 @@ class Clause:
     def __len__(self):
         return len(self.clause)
 
-    def drop_remove(self, item):
-        c = (item[0], not item[1])
-        self.clause.remove(c)
-        return item in self.clause  # return True if we need to remove literal
+    def __iter__(self):
+        self.n = 0
+        return self
+
+    def __next__(self):
+        if self.n < len(self.clause):
+            i = self.n
+            self.n += 1
+            return self.clause[i]
+        else:
+            raise StopIteration
+
+    def copy(self):
+        new = Clause([])
+        new.clause = self.clause
+        return new
+
+    def remove(self, item):
+        self.clause.remove(item)
 
 
 class Literal:

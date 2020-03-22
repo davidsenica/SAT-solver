@@ -27,7 +27,9 @@ def read(filepath):
                 row = list(map(int, row))
                 row.remove(0)
 
-                clause = Clause([Literal(int(np.cbrt(nbvar)), abs(num), num > 0) for num in row])
+                # FIXME remove comment for below
+                # clause = Clause([Literal(int(np.cbrt(nbvar)), abs(num), num > 0) for num in row])
+                clause = Clause([('x' + str(abs(num)), True if num > 0 else False) for num in row])
                 clauses.append(clause)
 
     return clauses, nbvar, nbclauses
