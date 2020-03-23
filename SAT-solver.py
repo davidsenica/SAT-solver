@@ -1,9 +1,9 @@
 import sys
-from file_reader import read
+from file_reader import read, write_file
 from classes import Clause
 
 
-class DDLL:
+class DPLL:
     def __init__(self, formula):
         self.formula = formula
         self.var = {}
@@ -17,7 +17,7 @@ class DDLL:
     def find_first_unit(self):
         for c in self.formula:
             if len(c) == 1:
-                return c.clause[0]
+                return c[0]
         return None
 
     def find_pure(self):
@@ -51,14 +51,14 @@ class DDLL:
         self.formula = modified
 
     def copy(self):
-        new = DDLL([])
+        new = DPLL([])
         new.formula = self.formula.copy()
         new.var = self.var.copy()
         return new
 
 
-def solve_DDLL(alg_DDLL, depth, vars):
-    curr = alg_DDLL.copy()
+def solve_DPLL(alg_DPLL, depth, vars):
+    curr = alg_DPLL.copy()
     while True:
         unit = curr.find_first_unit()
         if unit is not None:
@@ -72,24 +72,29 @@ def solve_DDLL(alg_DDLL, depth, vars):
     if not curr.formula:
         return True, curr.var
     else:
-        c = Clause([()])
+        c = []
         if c in curr.formula or depth == len(vars):  # Check if this ok
             return False, None
         c1 = curr.copy()
-        c1.add_unit((vars[depth], True))
-        truth, evaluation = solve_DDLL(c1, depth + 1, vars)
-        if truth:
-            return True, evaluation
+        c1.add_unit([(vars[depth], True)])
+        truth1, evaluation1 = solve_DPLL(c1, depth + 1, vars)
+
         c2 = curr.copy()
-        c2.add_unit((vars[depth], False))
-        truth, evaluation = solve_DDLL(c2, depth + 1, vars)
-        if not truth:
-            return False, None
+        c2.add_unit([(vars[depth], False)])
+        truth2, evaluation2 = solve_DPLL(c2, depth + 1, vars)
+
+        t = truth1 or truth2
+        if truth1:
+            eval = evaluation1
+        else:
+            eval = evaluation2
+
+        return t, eval
 
 
 def solve(cnf):
-    d = DDLL(cnf)
-    result = solve_DDLL(d, 0, list(d.var.keys()))
+    d = DPLL(cnf)
+    result = solve_DPLL(d, 0, list(d.var.keys()))
     #
     # if result[0]:
     #     for k in result[1].keys():
@@ -99,5 +104,10 @@ def solve(cnf):
 
 
 if __name__ == '__main__':
-    cnf,_,_ = read(sys.argv[1])
-    print(solve(cnf))
+    cnf,_ ,_ = read(sys.argv[1])
+    import time
+    start = time.time()
+    truth, vars = solve(cnf)
+    print("Program ran for %s s" % (time.time() - start))
+    write_file('solution.txt', vars)
+    print(vars)

@@ -1,6 +1,6 @@
 import numpy as np
 
-from classes import Clause, Literal
+from classes import Literal
 
 
 def read(filepath):
@@ -29,7 +29,7 @@ def read(filepath):
 
                 # FIXME remove comment for below
                 # clause = Clause([Literal(int(np.cbrt(nbvar)), abs(num), num > 0) for num in row])
-                clause = Clause([('x' + str(abs(num)), True if num > 0 else False) for num in row])
+                clause = [('x' + str(abs(num)), True if num > 0 else False) for num in row]
                 clauses.append(clause)
 
     return clauses, nbvar, nbclauses
@@ -45,6 +45,14 @@ def write(filepath, literals):
             if not l.orientation:
                 number *= -1
             f.write(str(number) + " ")
+
+
+def write_file(filepath, vars):
+    with open(filepath, 'w') as f:
+        for k, v in vars.items():
+            i = k.replace("x", "")
+            num = i if v else "-" + i
+            f.write(num + ' ')
 
 
 if __name__ == '__main__':
