@@ -6,10 +6,12 @@ from classes import Clause
 class DPLL:
     def __init__(self, formula):
         self.formula = formula
-        self.var = {}
+        tmp = set()
         for c in formula:
             for i in c:
-                self.var[i[0]] = None
+                tmp.add(abs(i))
+        self.diff = list(tmp)
+        self.var = []
 
     def add_unit(self, clause):
         self.formula.append(clause)
@@ -21,14 +23,14 @@ class DPLL:
         return None
 
     def find_pure(self):
-        for v in self.var.keys():
+        for v in self.var:
             is_pure = True
             is_in_formula = False
             for c in self.formula:
                 for l in c:
-                    if l[0] == v and l[1]:
+                    if abs(l) == v and l > 0:
                         is_in_formula = True
-                    if l[0] == v and not l[1]:
+                    if abs(l) == v and not l < 0:
                         is_pure = False
                         break
                 if not is_pure:
@@ -38,15 +40,17 @@ class DPLL:
         return None
 
     def remove(self, literal):
-        self.var[literal[0]] = literal[1]
+        if -literal in self.var:
+            self.var.remove(-literal)
+        self.var.append(literal)
         modified = self.formula.copy()
         for clause in self.formula:
             if literal in clause:
                 modified.remove(clause)
-            elif (literal[0], not literal[1]) in clause:
+            elif -literal in clause:
                 modified.remove(clause)
                 tmp = clause.copy()
-                tmp.remove((literal[0], not literal[1]))
+                tmp.remove(-literal)
                 modified.append(tmp)
         self.formula = modified
 
@@ -66,7 +70,7 @@ def solve_DPLL(alg_DPLL, depth, vars):
             continue
         pure = curr.find_pure()
         if pure is not None:
-            curr.remove((pure, True))
+            curr.remove(pure)
         else:
             break
     if not curr.formula:
@@ -76,11 +80,11 @@ def solve_DPLL(alg_DPLL, depth, vars):
         if c in curr.formula or depth == len(vars):  # Check if this ok
             return False, None
         c1 = curr.copy()
-        c1.add_unit([(vars[depth], True)])
+        c1.add_unit([vars[depth]])
         truth1, evaluation1 = solve_DPLL(c1, depth + 1, vars)
 
         c2 = curr.copy()
-        c2.add_unit([(vars[depth], False)])
+        c2.add_unit([-vars[depth]])
         truth2, evaluation2 = solve_DPLL(c2, depth + 1, vars)
 
         t = truth1 or truth2
@@ -94,7 +98,7 @@ def solve_DPLL(alg_DPLL, depth, vars):
 
 def solve(cnf):
     d = DPLL(cnf)
-    result = solve_DPLL(d, 0, list(d.var.keys()))
+    result = solve_DPLL(d, 0, d.diff)
     #
     # if result[0]:
     #     for k in result[1].keys():

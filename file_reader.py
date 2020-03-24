@@ -30,7 +30,7 @@ def read(filepath):
                 # FIXME remove comment for below
                 # clause = Clause([Literal(int(np.cbrt(nbvar)), abs(num), num > 0) for num in row])
                 clause = [('x' + str(abs(num)), True if num > 0 else False) for num in row]
-                clauses.append(clause)
+                clauses.append(row)
 
     return clauses, nbvar, nbclauses
 
@@ -49,10 +49,8 @@ def write(filepath, literals):
 
 def write_file(filepath, vars):
     with open(filepath, 'w') as f:
-        for k, v in vars.items():
-            i = k.replace("x", "")
-            num = i if v else "-" + i
-            f.write(num + ' ')
+        for num in vars:
+            f.write(str(num) + ' ')
 
 
 if __name__ == '__main__':
