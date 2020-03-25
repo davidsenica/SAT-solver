@@ -1,8 +1,6 @@
 import random
 import sys
-from file_reader import read, write_file
 import copy
-from classes import Clause
 
 
 class DPLL:
@@ -28,33 +26,6 @@ class DPLL:
                 cleaned = True
                 self.remove(c[0])
         return cleaned
-
-    def find_first_unit(self):
-        for c in self.formula:
-            if len(c) == 1:
-                return c[0]
-        return None
-
-    def find_pure(self):
-        for v in self.diff:
-            if v in self.all and v > 0 and -v not in self.all:
-                return v
-        # for v in self.var:
-        #     is_pure = True
-        #     is_in_formula = False
-        #     for c in self.formula:
-        #         for l in c:
-        #             if abs(l) == abs(v):
-        #                 if l > 0:
-        #                     is_in_formula = True
-        #                 else:
-        #                     is_pure = False
-        #                     break
-        #         if not is_pure:
-        #             break
-        #     if is_pure and is_in_formula:
-        #         return v
-        return None
 
     def clean_pure(self):
         cleaned = False
@@ -93,6 +64,35 @@ class DPLL:
         return new
 
 
+def read(filepath):
+    with open(filepath, "r") as f:
+        nbvar, nbclauses = -1, -1
+        clauses = []  # Final array of Clauses
+        for line in f:
+            row = line.strip()
+            # Comments - ignore
+            if row[0] == 'c':
+                continue
+            row = row.split()
+            # If p -> save number of variables and clauses
+            if row[0] == 'p':
+                nbvar = int(row[2])
+                nbclauses = int(row[3])
+            # Else create clause and add it to result
+            else:
+                row = list(map(int, row))
+                row.remove(0)
+                clauses.append(row)
+
+    return clauses, nbvar, nbclauses
+
+
+def write_file(filepath, vars):
+    with open(filepath, 'w') as f:
+        for num in vars:
+            f.write(str(num) + ' ')
+
+
 def solve_DPLL(alg_DPLL):
     curr = alg_DPLL.copy()
     while True:
@@ -127,11 +127,6 @@ def solve_DPLL(alg_DPLL):
 def solve(cnf):
     d = DPLL(cnf)
     result = solve_DPLL(d)
-    #
-    # if result[0]:
-    #     for k in result[1].keys():
-    #         if result[1][k] is None:
-    #             result[1][k] = True
     return result
 
 
@@ -140,6 +135,5 @@ if __name__ == '__main__':
     import time
     start = time.time()
     truth, vars = solve(cnf)
-    print("Program ran for %s s" % (time.time() - start))
-    write_file('solution.txt', vars)
-    print(vars)
+    print("Solver ran for %s s" % (time.time() - start))
+    write_file(sys.argv[2], vars)
