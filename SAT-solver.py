@@ -1,3 +1,4 @@
+import random
 import sys
 from file_reader import read, write_file
 import copy
@@ -92,7 +93,7 @@ class DPLL:
         return new
 
 
-def solve_DPLL(alg_DPLL, depth, vars):
+def solve_DPLL(alg_DPLL):
     curr = alg_DPLL.copy()
     while True:
         cleaned_unit = curr.clean_unit()
@@ -102,17 +103,17 @@ def solve_DPLL(alg_DPLL, depth, vars):
     if not curr.formula:
         return True, curr.var
     else:
-        print('Else')
         c = []
-        if c in curr.formula or depth == len(vars):  # Check if this ok
+        if c in curr.formula:  # Check if this ok
             return False, None
+        l = abs(random.sample(curr.all, 1)[0])
         c1 = curr.copy()
-        c1.add_unit([vars[depth]])
-        truth1, evaluation1 = solve_DPLL(c1, depth + 1, vars)
+        c1.add_unit([l])
+        truth1, evaluation1 = solve_DPLL(c1)
 
         c2 = curr.copy()
-        c2.add_unit([-vars[depth]])
-        truth2, evaluation2 = solve_DPLL(c2, depth + 1, vars)
+        c2.add_unit([-l])
+        truth2, evaluation2 = solve_DPLL(c2)
 
         t = truth1 or truth2
         if truth1:
@@ -125,7 +126,7 @@ def solve_DPLL(alg_DPLL, depth, vars):
 
 def solve(cnf):
     d = DPLL(cnf)
-    result = solve_DPLL(d, 0, d.diff)
+    result = solve_DPLL(d)
     #
     # if result[0]:
     #     for k in result[1].keys():
@@ -136,7 +137,6 @@ def solve(cnf):
 
 if __name__ == '__main__':
     cnf,_ ,_ = read(sys.argv[1])
-    print(solve([[1,2],[-1,3],[-2,-3],[-1,2,3]]))
     import time
     start = time.time()
     truth, vars = solve(cnf)
