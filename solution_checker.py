@@ -16,4 +16,4 @@ def check_file(file1, file2):
 
 
 if __name__ == '__main__':
-    check_file("tests/sudoku_mini_solution.txt", "solution.txt")
+    check_file(sys.argv[1], sys.argv[2])
