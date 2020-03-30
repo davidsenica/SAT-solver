@@ -91,8 +91,9 @@ def write_file(filepath, vars):
     with open(filepath, 'w') as f:
         if vars is None:
             f.write('0')
-        for num in vars:
-            f.write(str(num) + ' ')
+        else:
+            for num in vars:
+                f.write(str(num) + ' ')
 
 
 def solve_DPLL(alg_DPLL):
