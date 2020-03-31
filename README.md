@@ -9,7 +9,11 @@ It implements DPLL algorithm.
 
 Run the program with command:
 
-`python input.txt output.txt`
+`python SAT-solver.py input.txt output.txt`
 
-where input.txt is location of a file in dmacs format 
-and output.txt is location of output file
+where input.txt is location of a file in Dimacs format 
+and output.txt is location of output file.
+
+Example run
+
+`python SAT-solver.py example\ solution.txt`

@@ -1,21 +1,19 @@
 import random
 import sys
 import copy
+import operator
 
 
 class DPLL:
-    def __init__(self, formula):
+    def __init__(self, formula, all_diff_vars, counter):
         self.formula = formula
-        tmp = set()
-        self.all = set()
-        for c in formula:
-            for i in c:
-                tmp.add(abs(i))
-                self.all.add(i)
-        self.diff = list(tmp)
+        self.all = all_diff_vars
+        self.counter = counter
         self.var = set()
 
     def add_unit(self, clause):
+        if abs(clause[0]) not in self.counter:
+            self.counter.append(abs(clause[0]))
         self.all.add(clause[0])
         self.formula.append(clause)
 
@@ -29,7 +27,7 @@ class DPLL:
 
     def clean_pure(self):
         cleaned = False
-        for v in self.diff:
+        for v in self.counter:
             if v in self.all and v > 0 and -v not in self.all:
                 cleaned = True
                 self.remove(v)
@@ -43,6 +41,8 @@ class DPLL:
             self.all.remove(literal)
         if -literal in self.all:
             self.all.remove(-literal)
+        if abs(literal) in self.counter:
+            self.counter.remove(abs(literal))
         modified = []
         for clause in self.formula:
             if literal in clause:
@@ -56,11 +56,9 @@ class DPLL:
         self.formula = modified
 
     def copy(self):
-        new = DPLL([])
-        new.formula = copy.deepcopy(self.formula)
+        new = DPLL(copy.deepcopy(self.formula), copy.deepcopy(self.all),
+                   copy.deepcopy(self.counter))
         new.var = copy.deepcopy(self.var)
-        new.all = copy.deepcopy(self.all)
-        new.diff = copy.deepcopy(self.diff)
         return new
 
 
@@ -68,6 +66,8 @@ def read(filepath):
     with open(filepath, "r") as f:
         nbvar, nbclauses = -1, -1
         clauses = []  # Final array of Clauses
+        counter = {}
+        diff_vars = set()
         for line in f:
             row = line.strip()
             # Comments - ignore
@@ -80,11 +80,20 @@ def read(filepath):
                 nbclauses = int(row[3])
             # Else create clause and add it to result
             else:
-                row = list(map(int, row))
-                row.remove(0)
-                clauses.append(row)
-
-    return clauses, nbvar, nbclauses
+                clause = []
+                for r in row:
+                    num = int(r)
+                    if num == 0:
+                        continue
+                    clause.append(num)
+                    diff_vars.add(num)
+                    if num in counter:
+                        counter[abs(num)] = counter[abs(num)] + 1
+                    else:
+                        counter[abs(num)] = 1
+                clauses.append(clause)
+    counter_sorted = [k for k, v in sorted(counter.items(), key=lambda item: item[1], reverse=True)]
+    return DPLL(clauses, diff_vars, counter_sorted)
 
 
 def write_file(filepath, vars):
@@ -109,7 +118,7 @@ def solve_DPLL(alg_DPLL):
         c = []
         if c in curr.formula:  # Check if this ok
             return False, None
-        l = abs(random.sample(curr.all, 1)[0])
+        l = curr.counter[0]
         c1 = curr.copy()
         c1.add_unit([l])
         truth1, evaluation1 = solve_DPLL(c1)
@@ -127,16 +136,10 @@ def solve_DPLL(alg_DPLL):
         return t, eval
 
 
-def solve(cnf):
-    d = DPLL(cnf)
-    result = solve_DPLL(d)
-    return result
-
-
 if __name__ == '__main__':
-    cnf,_ ,_ = read(sys.argv[1])
     import time
     start = time.time()
-    truth, vars = solve(cnf)
+    dpll = read(sys.argv[1])
+    truth, vars = solve_DPLL(dpll)
     print("Solver ran for %s s" % (time.time() - start))
     write_file(sys.argv[2], vars)
