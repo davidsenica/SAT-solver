@@ -1,7 +1,6 @@
-import random
 import sys
 import copy
-import operator
+import multiprocessing as mp
 
 
 class DPLL:
@@ -12,8 +11,6 @@ class DPLL:
         self.var = set()
 
     def add_unit(self, clause):
-        if abs(clause[0]) not in self.counter:
-            self.counter.append(abs(clause[0]))
         self.all.add(clause[0])
         self.formula.append(clause)
 
@@ -118,7 +115,14 @@ def solve_DPLL(alg_DPLL):
         c = []
         if c in curr.formula:  # Check if this ok
             return False, None
-        l = curr.counter[0]
+        l = None
+        for i in range(len(curr.counter)):
+            l = curr.counter[i]
+            if l in curr.all or -l in curr.all:
+                break
+            else:
+                curr.counter.remove(l)
+
         c1 = curr.copy()
         c1.add_unit([l])
         truth1, evaluation1 = solve_DPLL(c1)
@@ -132,7 +136,6 @@ def solve_DPLL(alg_DPLL):
             eval = evaluation1
         else:
             eval = evaluation2
-
         return t, eval
 
 

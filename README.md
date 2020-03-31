@@ -17,3 +17,6 @@ and output.txt is location of output file.
 Example run
 
 `python SAT-solver.py example\ solution.txt`
+
+### Improvement
+For next decision literal we select the one with highest occurrence.
