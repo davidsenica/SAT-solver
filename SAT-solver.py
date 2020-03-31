@@ -13,7 +13,7 @@ class DPLL:
                 tmp.add(abs(i))
                 self.all.add(i)
         self.diff = list(tmp)
-        self.var = []
+        self.var = set()
 
     def add_unit(self, clause):
         self.all.add(clause[0])
@@ -38,7 +38,7 @@ class DPLL:
     def remove(self, literal):
         if -literal in self.var:
             self.var.remove(-literal)
-        self.var.append(literal)
+        self.var.add(literal)
         if literal in self.all:
             self.all.remove(literal)
         if -literal in self.all:
