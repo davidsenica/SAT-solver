@@ -11,8 +11,14 @@ def check_file(file1, file2):
     set1 = read_file(file1)
     set2 = read_file(file2)
     set1.difference(set2)
-    d = set1.difference(set2)
-    print('Solutions are identical!' if d == set() else d)
+    d1 = set1.difference(set2)
+    d2 = set2.difference(set1)
+    if d1 != set():
+        print(d1)
+    elif d2 != set():
+        print(d2)
+    else:
+        print('Solutions are identical')
 
 
 if __name__ == '__main__':
