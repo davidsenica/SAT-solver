@@ -1,6 +1,5 @@
 import sys
 import copy
-import multiprocessing as mp
 
 
 class DPLL:
@@ -103,40 +102,36 @@ def write_file(filepath, vars):
 
 
 def solve_DPLL(alg_DPLL):
+    stack = []
     curr = alg_DPLL.copy()
     while True:
-        cleaned_unit = curr.clean_unit()
-        cleaned_pure = curr.clean_pure()
-        if not cleaned_unit and not cleaned_pure:
-            break
-    if not curr.formula:
-        return True, curr.var
-    else:
-        c = []
-        if c in curr.formula:  # Check if this ok
-            return False, None
-        l = None
-        for i in range(len(curr.counter)):
-            l = curr.counter[i]
-            if l in curr.all or -l in curr.all:
-                break
-            else:
-                curr.counter.remove(l)
-
-        c1 = curr.copy()
-        c1.add_unit([l])
-        truth1, evaluation1 = solve_DPLL(c1)
-
-        c2 = curr.copy()
-        c2.add_unit([-l])
-        truth2, evaluation2 = solve_DPLL(c2)
-
-        t = truth1 or truth2
-        if truth1:
-            eval = evaluation1
+        cleaned_unit = True
+        cleaned_pure = True
+        while cleaned_unit or cleaned_pure:
+            cleaned_unit = curr.clean_unit()
+            cleaned_pure = curr.clean_pure()
+        if not curr.formula:
+            return True, curr.var
         else:
-            eval = evaluation2
-        return t, eval
+            c = []
+            if c in curr.formula:  # Check if this ok
+                if len(stack) == 0:
+                    return False, None
+                l = stack.pop()
+                curr = l[1]
+                curr.add_unit([-l[0]])
+                continue
+
+            l = None
+            for i in range(len(curr.counter)):
+                l = curr.counter[i]
+                if l in curr.all or -l in curr.all:
+                    break
+                else:
+                    curr.counter.remove(l)
+
+            stack.append((l, curr.copy()))
+            curr.add_unit([l])
 
 
 if __name__ == '__main__':
