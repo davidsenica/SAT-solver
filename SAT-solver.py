@@ -25,7 +25,9 @@ class DPLL:
     def clean_pure(self):
         cleaned = False
         for v in self.counter:
-            if v in self.all and v > 0 and -v not in self.all:
+            if v < 0:
+                continue
+            if -v not in self.all:
                 cleaned = True
                 self.remove(v)
                 break
