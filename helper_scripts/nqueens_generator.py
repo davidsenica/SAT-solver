@@ -1,5 +1,5 @@
 def reduce_nq_sat (n):
-    file = open('rezultat.txt', 'w') 
+    file = open('../rezultat.txt', 'w')
     stv = n*n
     stc = 0
     clauses = list()
@@ -43,4 +43,4 @@ def reduce_nq_sat (n):
         file.write(clauses[i]+'\n')
     
 
-reduce_nq_sat(30)
+reduce_nq_sat(31)
