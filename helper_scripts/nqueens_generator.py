@@ -43,4 +43,4 @@ def reduce_nq_sat (n):
         file.write(clauses[i]+'\n')
     
 
-reduce_nq_sat(31)
+reduce_nq_sat(41)
