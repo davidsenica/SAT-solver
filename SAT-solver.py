@@ -19,6 +19,7 @@ class DPLL:
             if len(c) == 1:
                 cleaned = True
                 self.remove(c[0])
+                break
         return cleaned
 
     def clean_pure(self):
@@ -27,6 +28,7 @@ class DPLL:
             if v in self.all and v > 0 and -v not in self.all:
                 cleaned = True
                 self.remove(v)
+                break
         return cleaned
 
     def remove(self, literal):
